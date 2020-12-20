@@ -1,5 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
+import RoomEntry from './RoomEntry';
 
 function App() {
   return (
@@ -7,6 +7,7 @@ function App() {
       <header className="App-header">
         <p>Collab Whiteboard</p>
       </header>
+      <RoomEntry/>
     </div>
   );
 }
