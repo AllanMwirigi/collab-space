@@ -1,6 +1,6 @@
 import React,{ useState, useEffect } from "react";
 
-export default function RoomEntry(props) {
+export default function Credentials(props) {
 
   const [roomNameInp, setRoomNameInp] = useState("");
   // const [passwordInp, setPasswordInp] = useState("");
@@ -14,9 +14,11 @@ export default function RoomEntry(props) {
       return;
     }
     setRequestPending(true);
+    // TODO: send request to backend and create/verify room
     // TODO: show some fancy loading
     setTimeout(() => {
       setRequestPending(false);
+      props.setVerified(true);
     }, 500);
     
   }
@@ -27,16 +29,12 @@ export default function RoomEntry(props) {
         <div className="wrap-login100">
           <form className="login100-form validate-form p-l-55 p-r-55 p-t-178" onSubmit={e => submit(e) }>
             <span className="login100-form-title">
-              Enter Whiteboard Room Details
+              Space Details
             </span>
 
             <div className="wrap-input100 validate-input m-b-16" data-validate="Please enter room name">
               <input className="input100" type="text" name="room-name" placeholder="Room Name" 
-                value={roomNameInp} onChange={(e) => { 
-                  if (e.code !== 'Space') {
-                    setRoomNameInp(e.currentTarget.value.trim()) 
-                  }
-                } }
+                value={roomNameInp} onChange={(e) => { setRoomNameInp(e.currentTarget.value.trim()) } }
               />
               <span className="focus-input100"></span>
             </div>

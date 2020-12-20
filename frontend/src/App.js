@@ -1,13 +1,19 @@
+import React,{ useState, } from "react";
 import './App.css';
-import RoomEntry from './RoomEntry';
+import Credentials from './pages/Credentials';
+import Workspace from './pages/Workspace';
 
 function App() {
+
+  const [verified, setVerified] = useState(false);
+
   return (
     <div className="App">
       <header className="App-header">
-        <p>Collab Whiteboard</p>
+        <p>Collab Space</p>
       </header>
-      <RoomEntry/>
+      { !verified && <Credentials setVerified={setVerified}/> }
+      { verified &&  <Workspace/> }
     </div>
   );
 }

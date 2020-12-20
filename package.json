@@ -1,7 +1,7 @@
 {
-  "name": "collaborative-whiteboard",
+  "name": "collab-space-backend",
   "version": "0.0.1",
-  "description": "A synced whiteboard where users can have interactive drawing, typing and doodling",
+  "description": "A synced online workspace where users can have interactive drawing, chat and doodling",
   "main": "app.js",
   "author": "Allan Mwirigi",
   "license": "MIT",
