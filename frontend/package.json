@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A synced online workspace where users can have interactive drawing, chat and doodling",
   "private": false,
+  "license": "MIT",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -11,6 +12,7 @@
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
     "react-sketch-canvas": "^5.3.1",
+    "react-tooltip": "^4.2.11",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

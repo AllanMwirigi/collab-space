@@ -13,6 +13,38 @@ body {
   color: white;
 }
 
+.workspace {
+  display: flex;
+  flex-direction: row;
+  height: 90vh
+}
+
+.whiteboard {
+  width: 45%;
+  margin: 20px;
+  /* height: 60vh; */
+  height: 75%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+}
+
+.whiteboard-icons {
+  width: 20%;
+  height: 5%;
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+  justify-content: space-around;
+  align-items: center;
+  align-self: flex-end;
+}
+
+.whiteboard h4 {
+  margin: 0;
+}
+
 
 /*//////////////////////////////////////////////////////////////////
 [ login ]*/
