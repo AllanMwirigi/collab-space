@@ -6,6 +6,7 @@ export const getBaseUrl = () => {
   if(process.env.REACT_APP_ENV === 'production'){
       url = process.env.REACT_APP_PROD_API_URL;
   }
+  console.log(process.env.REACT_APP_ENV, url);
   return url;
 }
 
