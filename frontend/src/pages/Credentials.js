@@ -17,10 +17,10 @@ export default function Credentials(props) {
     // TODO: send request to backend and create/verify room
     // TODO: show some fancy loading
     setTimeout(() => {
+      sessionStorage.setItem('roomName', roomNameInp);
       setRequestPending(false);
-      props.setVerified(true);
+      props.setVerified(true); // have parent (App.js) change to the next page
     }, 500);
-    
   }
 
   return(
