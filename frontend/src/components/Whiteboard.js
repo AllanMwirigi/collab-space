@@ -1,4 +1,4 @@
-import React,{ useState, useEffect } from "react";
+import React from "react"; 
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import ReactTooltip from 'react-tooltip';
 import { getsocketIoInstance } from '../utils/socketio-client';

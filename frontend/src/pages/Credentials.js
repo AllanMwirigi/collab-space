@@ -1,5 +1,6 @@
 import React,{ useState } from "react";
 import { toast } from 'react-toastify';
+import '../App.css';
 
 export default function Credentials(props) {
 
@@ -19,7 +20,6 @@ export default function Credentials(props) {
     // TODO: send request to backend and create/verify room
     // TODO: show some fancy loading
     setTimeout(() => {
-      console.log(roomNameInp, displayNameInp);
       sessionStorage.setItem('roomName', roomNameInp);
       sessionStorage.setItem('displayName', displayNameInp);
       setRequestPending(false);
