@@ -1,23 +1,27 @@
-import React,{ useState, useEffect } from "react";
+import React,{ useState } from "react";
+import { toast } from 'react-toastify';
 
 export default function Credentials(props) {
 
   const [roomNameInp, setRoomNameInp] = useState("");
+  const [displayNameInp, setDisplayNameInp] = useState("");
   // const [passwordInp, setPasswordInp] = useState("");
   const [requestPending, setRequestPending] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
-    if(roomNameInp.trim() === '' /* || passwordInp.trim() === '' */ ) {
-      // alert('Fill in all fields');
-      alert('Please enter Room Name');
+    if(roomNameInp.trim() === '' || displayNameInp.trim() === '' /* || passwordInp.trim() === '' */ ) {
+      toast.error('Kindly fill in all fields');
+      // alert('Please enter Room Name');
       return;
     }
     setRequestPending(true);
     // TODO: send request to backend and create/verify room
     // TODO: show some fancy loading
     setTimeout(() => {
+      console.log(roomNameInp, displayNameInp);
       sessionStorage.setItem('roomName', roomNameInp);
+      sessionStorage.setItem('displayName', displayNameInp);
       setRequestPending(false);
       props.setVerified(true); // have parent (App.js) change to the next page
     }, 500);
@@ -35,6 +39,12 @@ export default function Credentials(props) {
             <div className="wrap-input100 validate-input m-b-16" data-validate="Please enter room name">
               <input className="input100" type="text" name="room-name" placeholder="Room Name" 
                 value={roomNameInp} onChange={(e) => { setRoomNameInp(e.currentTarget.value.trim()) } }
+              />
+              <span className="focus-input100"></span>
+            </div>
+            <div className="wrap-input100 validate-input m-b-16" data-validate="Please enter display name">
+              <input className="input100" type="text" name="display-name" placeholder="Your Display Name" 
+                value={displayNameInp} onChange={(e) => { setDisplayNameInp(e.currentTarget.value.trim()) } }
               />
               <span className="focus-input100"></span>
             </div>
