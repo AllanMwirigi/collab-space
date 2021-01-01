@@ -27,10 +27,12 @@ const socketio = require('socket.io')(server, {
 
 // sockets for real time data
 socketio.on('connection', (socket) => {
-  socket.on('join-room', (roomName) => {
+  socket.on('join-room', (data) => {
     // each user in a workspace will join a room identified by the room name
+    const { roomName, userName } = data;
     socket.join(roomName);
     logger.debug(`socket ${socket.id} joined room ${roomName}`);
+    socket.to(roomName).emit('join-room', userName);
   });
 
   socket.on('whiteboard', (changes) => {
@@ -39,9 +41,9 @@ socketio.on('connection', (socket) => {
     socket.to(roomName).emit('whiteboard', { type, drawUpdates });
   });
 
-  socket.on('whiteboard-typing', (data) => {
-    const { roomName, changes } = data;
-    socket.to(roomName).emit('whiteboard-typing', changes);
+  socket.on('new-msg', (data) => {
+    const { roomName, txt, senderName } = data;
+    socket.to(roomName).emit('new-msg', { txt, senderName });
   });
 
 });

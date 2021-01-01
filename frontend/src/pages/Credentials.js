@@ -1,6 +1,6 @@
 import React,{ useState } from "react";
 import { toast } from 'react-toastify';
-import '../App.css';
+// import '../App.css';
 
 export default function Credentials(props) {
 

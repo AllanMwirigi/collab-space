@@ -2,7 +2,7 @@ import React from "react";
 import 'react-chatbox-component/dist/style.css';
 import {ChatBox} from 'react-chatbox-component';
 import { getsocketIoInstance } from '../utils/socketio-client';
-import '../App.css';
+// import '../App.css';
 
 export default class Chat extends React.Component {
   constructor(props) {
@@ -17,9 +17,21 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
-    this.socketIo.on('new-msg', (msg) => {
-      console.log('new msg', msg);
-      // this.setState({ messages: this.state.messages.push(msg) });
+    this.socketIo.on('new-msg', (data) => {
+      const { txt, senderName } = data;
+      const msg = {
+        "text": txt,
+        "id": (this.state.messages.length + 1).toString(), // seems to be used as a key to render in the list
+        "sender": {
+          "name": senderName,
+          "uid": senderName, // TODO: use database id
+          // "avatar": "https://data.cometchat.com/assets/images/avatars/ironman.png",
+          "avatar": "./user.png"
+        },
+      }
+      const list = this.state.messages;
+      list.push(msg);
+      this.setState({ messages: list });
     });
   }
 
@@ -38,7 +50,7 @@ export default class Chat extends React.Component {
     const list = this.state.messages;
     list.push(msg);
     this.setState({ messages: list });
-    // this.socketIo.emit('new-msg', msg);
+    this.socketIo.emit('new-msg', { roomName: this.roomName, txt, senderName: this.displayName });
   }
 
   render() {

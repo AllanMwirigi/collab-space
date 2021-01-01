@@ -27,27 +27,22 @@ export default class Whiteboard extends React.Component {
 
   componentDidMount() {
     this.socketIo.on('whiteboard', (changes) => {
-      setTimeout(() => {
-        const { type, drawUpdates } = changes;
-        if (type === this.WhiteBoardMsgType.canvas_draw) {
-        this.pauseSync = true;
-        this.canvas.current.loadPaths(drawUpdates);
-        this.pauseSync = false;
-        }
-      }, 500);
-      
       // setTimeout(() => {
+      //   const { type, drawUpdates } = changes;
+      //   if (type === this.WhiteBoardMsgType.canvas_draw) {
+      //   this.pauseSync = true;
+      //   this.canvas.current.loadPaths(drawUpdates);
       //   this.pauseSync = false;
-      // }, 50);
+      //   }
+      // }, 500);
     });
   }
 
   whiteBoardUpdated = (drawUpdates) => {
     if (!this.pauseSync) {
-      const changes = { roomName: this.roomName, type: this.WhiteBoardMsgType.canvas_draw, drawUpdates }
-      this.socketIo.emit('whiteboard', changes);
+      // const changes = { roomName: this.roomName, type: this.WhiteBoardMsgType.canvas_draw, drawUpdates }
+      // this.socketIo.emit('whiteboard', changes);
     }
-    // console.log('pause sync', this.pauseSync);
   }
   toggleEraseMode = () => {
     this.canvas.current.eraseMode(!this.state.eraseMode);
@@ -76,7 +71,7 @@ export default class Whiteboard extends React.Component {
     return (
       <div className="whiteboard">
         <h4>Whiteboard</h4>
-        <ReactTooltip place="top" type="info" effect="float"/>
+        {/* <ReactTooltip place="top" type="info" effect="float"/> */}
         <div className="whiteboard-icons">
           <i className="fas fa-undo" data-tip='Undo' onClick={this.undoCanvas}></i> 
           <i className="fas fa-redo" data-tip='Redo' onClick={this.redoCanvas}></i>
