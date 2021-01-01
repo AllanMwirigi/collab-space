@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from 'react-toastify';
-import Whiteboard from '../components/Whiteboard';
+import { Whiteboard } from '../components/Whiteboard';
 import Chat from '../components/Chat';
 import { getsocketIoInstance } from '../utils/socketio-client';
 // import '../App.css';
