@@ -17,7 +17,7 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
-    this.socketIo.on('new-msg', (data) => {
+    this.socketIo.on('chat-msg', (data) => {
       const { txt, senderName } = data;
       const msg = {
         "text": txt,
@@ -50,7 +50,7 @@ export default class Chat extends React.Component {
     const list = this.state.messages;
     list.push(msg);
     this.setState({ messages: list });
-    this.socketIo.emit('new-msg', { roomName: this.roomName, txt, senderName: this.displayName });
+    this.socketIo.emit('chat-msg', { roomName: this.roomName, txt, senderName: this.displayName });
   }
 
   render() {

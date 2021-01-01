@@ -1,7 +1,9 @@
 import { produce } from "immer";
 import React from "react";
-import { Canvas, CanvasPath, ExportImageType, Point } from "react-sketch-canvas";
+import { Canvas, CanvasPath, Point } from "react-sketch-canvas";
 import ReactTooltip from "react-tooltip";
+import { fromJS } from 'immutable';
+import { getsocketIoInstance } from '../utils/socketio-client';
 
 /* Default settings */
 
@@ -67,6 +69,8 @@ export class Whiteboard extends React.Component<
     currentPaths: [],
     eraseMode: false,
   };
+  roomName: string | null;
+  socketIo: any;
 
   constructor(props: ReactSketchCanvasProps) {
     super(props);
@@ -77,49 +81,38 @@ export class Whiteboard extends React.Component<
     this.handlePointerMove = this.handlePointerMove.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
 
-    this.exportImage = this.exportImage.bind(this);
-    this.exportSvg = this.exportSvg.bind(this);
-    this.exportPaths = this.exportPaths.bind(this);
-    this.loadPaths = this.loadPaths.bind(this);
-
     this.eraseMode = this.eraseMode.bind(this);
     this.clearCanvas = this.clearCanvas.bind(this);
     this.undo = this.undo.bind(this);
     this.redo = this.redo.bind(this);
     this.resetCanvas = this.resetCanvas.bind(this);
-    this.getSketchingTime = this.getSketchingTime.bind(this);
 
     this.liftPathsUp = this.liftPathsUp.bind(this);
 
     this.svgCanvas = React.createRef();
+
+    this.roomName = sessionStorage.getItem('roomName');
+    this.socketIo = getsocketIoInstance(this.roomName, 'Whiteboard');
   }
 
-  getSketchingTime(): Promise<number> {
-    const { withTimestamp } = this.props;
-    const { currentPaths } = this.state;
-
-    return new Promise<number>((resolve, reject) => {
-      if (!withTimestamp) {
-        reject(new Error("Set 'withTimestamp' prop to get sketching time"));
-      }
-
-      try {
-        const sketchingTime = currentPaths.reduce(
-          (totalSketchingTime, path) => {
-            const startTimestamp = path.startTimestamp ?? 0;
-            const endTimestamp = path.endTimestamp ?? 0;
-
-            return totalSketchingTime + (endTimestamp - startTimestamp);
-          },
-          0
-        );
-
-        resolve(sketchingTime);
-      } catch (e) {
-        reject(e);
-      }
+  componentDidMount() {
+    this.socketIo.on('whiteboard-paths', ({ currentPaths, isDrawing }: { currentPaths: CanvasPath[]; isDrawing: boolean; }) => {
+      // const { currentPaths, isDrawing } = changes;
+      // update paths
+      this.setState({
+        currentPaths: fromJS(currentPaths),
+        isDrawing
+      });
     });
   }
+
+  // updatePaths = (changes: { currentPaths: CanvasPath[]; isDrawing: boolean; }) => {
+  //   const { currentPaths, isDrawing } = changes;
+  //   this.setState({
+  //     paths: fromJS(currentPaths),
+  //     isDrawing
+  //   });
+  // };
 
   resetCanvas(): void {
     this.setState(this.initialState);
@@ -135,84 +128,87 @@ export class Whiteboard extends React.Component<
   /* Mouse Handlers - Mouse down, move and up */
 
   handlePointerDown(point: Point): void {
-    const {
-      strokeColor,
-      strokeWidth,
-      canvasColor,
-      eraserWidth,
-      withTimestamp,
-    } = this.props;
+    // const {
+    //   strokeColor,
+    //   strokeWidth,
+    //   canvasColor,
+    //   eraserWidth,
+    //   withTimestamp,
+    // } = this.props;
 
-    this.setState(
-      produce((draft: ReactSketchCanvasStates) => {
-        draft.isDrawing = true;
-        draft.undoStack = [];
+    // this.setState(
+    //   produce((draft: ReactSketchCanvasStates) => {
+    //     draft.isDrawing = true;
+    //     draft.undoStack = [];
 
-        let stroke: CanvasPath = {
-          drawMode: draft.drawMode,
-          strokeColor: draft.drawMode ? strokeColor : canvasColor,
-          strokeWidth: draft.drawMode ? strokeWidth : eraserWidth,
-          paths: [point],
-        };
+    //     let stroke: CanvasPath = {
+    //       drawMode: draft.drawMode,
+    //       strokeColor: draft.drawMode ? strokeColor : canvasColor,
+    //       strokeWidth: draft.drawMode ? strokeWidth : eraserWidth,
+    //       paths: [point],
+    //     };
 
-        if (withTimestamp) {
-          stroke = {
-            ...stroke,
-            startTimestamp: Date.now(),
-            endTimestamp: 0,
-          };
-        }
+    //     if (withTimestamp) {
+    //       stroke = {
+    //         ...stroke,
+    //         startTimestamp: Date.now(),
+    //         endTimestamp: 0,
+    //       };
+    //     }
 
-        draft.currentPaths.push(stroke);
-      }),
-      this.liftPathsUp
-    );
+    //     draft.currentPaths.push(stroke);
+    //   }),
+    //   this.liftPathsUp
+    // );
+    this.socketIo.emit("sketchPointerDown", { roomName: this.roomName, point });
   }
 
   handlePointerMove(point: Point): void {
-    const { isDrawing } = this.state;
+    // const { isDrawing } = this.state;
 
-    if (!isDrawing) return;
+    // if (!isDrawing) return;
 
-    this.setState(
-      produce((draft: ReactSketchCanvasStates) => {
-        const currentStroke = draft.currentPaths[draft.currentPaths.length - 1];
-        currentStroke.paths.push(point);
-      }),
-      this.liftPathsUp
-    );
+    // this.setState(
+    //   produce((draft: ReactSketchCanvasStates) => {
+    //     const currentStroke = draft.currentPaths[draft.currentPaths.length - 1];
+    //     currentStroke.paths.push(point);
+    //   }),
+    //   this.liftPathsUp
+    // );
+    this.socketIo.emit("sketchPointerMove", { roomName: this.roomName, point });
   }
 
   handlePointerUp(): void {
-    const { withTimestamp } = this.props;
+    // const { withTimestamp } = this.props;
 
-    const { isDrawing } = this.state;
+    // const { isDrawing } = this.state;
 
-    if (!isDrawing) {
-      return;
-    }
+    // if (!isDrawing) {
+    //   return;
+    // }
 
-    this.setState(
-      produce((draft: ReactSketchCanvasStates) => {
-        draft.isDrawing = false;
+    // this.setState(
+    //   produce((draft: ReactSketchCanvasStates) => {
+    //     draft.isDrawing = false;
 
-        if (!withTimestamp) {
-          return;
-        }
+    //     if (!withTimestamp) {
+    //       return;
+    //     }
 
-        let currentStroke: CanvasPath | undefined = draft.currentPaths.pop();
+    //     let currentStroke: CanvasPath | undefined = draft.currentPaths.pop();
 
-        if (currentStroke) {
-          currentStroke = {
-            ...currentStroke,
-            endTimestamp: Date.now(),
-          };
+    //     if (currentStroke) {
+    //       currentStroke = {
+    //         ...currentStroke,
+    //         endTimestamp: Date.now(),
+    //       };
 
-          draft.currentPaths.push(currentStroke);
-        }
-      }),
-      this.liftPathsUp
-    );
+    //       draft.currentPaths.push(currentStroke);
+    //     }
+    //   }),
+    //   this.liftPathsUp
+    // );
+    this.socketIo.emit("sketchPointerUp", { roomName: this.roomName });
   }
 
   /* Mouse Handlers ends */
@@ -240,6 +236,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
+    // this.socketIo.emit("sketch-clear", { roomName: this.roomName });
   }
 
   undo(): void {
@@ -259,7 +256,7 @@ export class Whiteboard extends React.Component<
           onUpdate(currentPaths);
         }
       );
-
+      // this.socketIo.emit("sketch-undo", { roomName: this.roomName });
       return;
     }
 
@@ -273,6 +270,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
+    // this.socketIo.emit("sketch-undo", { roomName: this.roomName });
   }
 
   redo(): void {
@@ -291,58 +289,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
-  }
-
-  /* Exporting options */
-
-  // Creates a image from SVG and renders it on canvas, then exports the canvas as image
-  exportImage(imageType: ExportImageType): Promise<string> {
-    const exportImage = this.svgCanvas.current?.exportImage;
-
-    if (!exportImage) {
-      throw Error("Export function called before canvas loaded");
-    } else {
-      return exportImage(imageType);
-    }
-  }
-
-  exportSvg(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const exportSvg = this.svgCanvas.current?.exportSvg;
-
-      if (!exportSvg) {
-        reject(Error("Export function called before canvas loaded"));
-      } else {
-        exportSvg()
-          .then((data) => {
-            resolve(data);
-          })
-          .catch((e) => {
-            reject(e);
-          });
-      }
-    });
-  }
-
-  exportPaths(): Promise<CanvasPath[]> {
-    const { currentPaths } = this.state;
-
-    return new Promise<CanvasPath[]>((resolve, reject) => {
-      try {
-        resolve(currentPaths);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
-  loadPaths(paths: CanvasPath[]): void {
-    this.setState(
-      produce((draft: ReactSketchCanvasStates) => {
-        draft.currentPaths = draft.currentPaths.concat(paths);
-      }),
-      this.liftPathsUp
-    );
+    // this.socketIo.emit("sketch-redo", { roomName: this.roomName });
   }
 
   /* Finally!!! Render method */
