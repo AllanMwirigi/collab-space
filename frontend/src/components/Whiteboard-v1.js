@@ -21,7 +21,8 @@ export default class Whiteboard extends React.Component {
       canvas_clear: 4,
     }
     this.roomName = sessionStorage.getItem('roomName');
-    this.socketIo = getsocketIoInstance(this.roomName, 'Whiteboard');
+    this.displayName = sessionStorage.getItem('displayName');
+    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Whiteboard');
   }
 
   componentDidMount() {

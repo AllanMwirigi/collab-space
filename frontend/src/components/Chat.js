@@ -13,7 +13,7 @@ export default class Chat extends React.Component {
     this.roomName = sessionStorage.getItem('roomName');
     this.displayName = sessionStorage.getItem('displayName'); // the name of this user
     this.userObj = { "uid": this.displayName }; // When sender uid matched the user uid, it will render message from the right side
-    this.socketIo = getsocketIoInstance(this.roomName, 'Chat');
+    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Chat');
   }
 
   componentDidMount() {

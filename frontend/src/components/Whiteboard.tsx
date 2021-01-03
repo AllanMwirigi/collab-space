@@ -1,6 +1,8 @@
 import { produce } from "immer";
 import React from "react";
 import { Canvas, CanvasPath, Point } from "react-sketch-canvas";
+// import { CanvasPath, Point } from "react-sketch-canvas";
+// import { Canvas } from './Canvas';
 import ReactTooltip from "react-tooltip";
 import { fromJS } from 'immutable';
 import { getsocketIoInstance } from '../utils/socketio-client';
@@ -71,6 +73,7 @@ export class Whiteboard extends React.Component<
   };
   roomName: string | null;
   socketIo: any;
+  displayName: string | null;
 
   constructor(props: ReactSketchCanvasProps) {
     super(props);
@@ -92,15 +95,16 @@ export class Whiteboard extends React.Component<
     this.svgCanvas = React.createRef();
 
     this.roomName = sessionStorage.getItem('roomName');
-    this.socketIo = getsocketIoInstance(this.roomName, 'Whiteboard');
+    this.displayName = sessionStorage.getItem('displayName');
+    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Whiteboard');
   }
 
   componentDidMount() {
     this.socketIo.on('whiteboard-paths', ({ currentPaths, isDrawing }: { currentPaths: CanvasPath[]; isDrawing: boolean; }) => {
-      // const { currentPaths, isDrawing } = changes;
       // update paths
       this.setState({
-        currentPaths: fromJS(currentPaths),
+        // currentPaths: fromJS(currentPaths),
+        currentPaths,
         isDrawing
       });
     });
