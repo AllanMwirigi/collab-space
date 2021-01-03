@@ -13,11 +13,11 @@ export default class Chat extends React.Component {
     this.roomName = sessionStorage.getItem('roomName');
     this.displayName = sessionStorage.getItem('displayName'); // the name of this user
     this.userObj = { "uid": this.displayName }; // When sender uid matched the user uid, it will render message from the right side
-    this.socketIo = getsocketIoInstance(this.roomName, 'Chat');
+    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Chat');
   }
 
   componentDidMount() {
-    this.socketIo.on('new-msg', (data) => {
+    this.socketIo.on('chat-msg', (data) => {
       const { txt, senderName } = data;
       const msg = {
         "text": txt,
@@ -50,7 +50,7 @@ export default class Chat extends React.Component {
     const list = this.state.messages;
     list.push(msg);
     this.setState({ messages: list });
-    this.socketIo.emit('new-msg', { roomName: this.roomName, txt, senderName: this.displayName });
+    this.socketIo.emit('chat-msg', { roomName: this.roomName, txt, senderName: this.displayName });
   }
 
   render() {

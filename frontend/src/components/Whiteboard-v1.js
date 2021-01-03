@@ -1,6 +1,5 @@
 import React from "react"; 
 import { ReactSketchCanvas } from "react-sketch-canvas";
-import ReactTooltip from 'react-tooltip';
 import { getsocketIoInstance } from '../utils/socketio-client';
 
 export default class Whiteboard extends React.Component {
@@ -22,7 +21,8 @@ export default class Whiteboard extends React.Component {
       canvas_clear: 4,
     }
     this.roomName = sessionStorage.getItem('roomName');
-    this.socketIo = getsocketIoInstance(this.roomName, 'Whiteboard');
+    this.displayName = sessionStorage.getItem('displayName');
+    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Whiteboard');
   }
 
   componentDidMount() {
@@ -71,7 +71,7 @@ export default class Whiteboard extends React.Component {
     return (
       <div className="whiteboard">
         <h4>Whiteboard</h4>
-        {/* <ReactTooltip place="top" type="info" effect="float"/> */}
+        <ReactTooltip place="top" type="info" effect="float"/>
         <div className="whiteboard-icons">
           <i className="fas fa-undo" data-tip='Undo' onClick={this.undoCanvas}></i> 
           <i className="fas fa-redo" data-tip='Redo' onClick={this.redoCanvas}></i>
