@@ -1,10 +1,7 @@
 import { produce } from "immer";
 import React from "react";
 import { Canvas, CanvasPath, Point } from "react-sketch-canvas";
-// import { CanvasPath, Point } from "react-sketch-canvas";
-// import { Canvas } from './Canvas';
 import ReactTooltip from "react-tooltip";
-import { fromJS } from 'immutable';
 import { getsocketIoInstance } from '../utils/socketio-client';
 
 /* Default settings */
@@ -244,7 +241,7 @@ export class Whiteboard extends React.Component<
 
     return (
       <div className="whiteboard">
-        <h4>Whiteboard</h4>
+        <h4>Doodle</h4>
         <ReactTooltip id="whtbrd-tltp" place="top" type="info" effect="float" />
         <div className="whiteboard-icons">
           {/* <i className="fas fa-undo" data-tip='Undo' onClick={this.undo} data-for="whtbrd-tltp"></i>

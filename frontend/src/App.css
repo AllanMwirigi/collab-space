@@ -56,11 +56,32 @@ body {
   height: 93vh
 }
 
-.whiteboard {
+.meeting-component {
+  min-width: 45%;
+  color: white;
+}
+
+.tabs {
   min-width: 45%;
   margin: 20px;
+  height: 85%;
+}
+.tabs .react-tabs__tab {
+  color: white;
+}
+.tabs .react-tabs__tab--selected {
+  color: black;
+}
+.tabs .react-tabs__tab-panel {
+  height: 100%;
+}
+
+.whiteboard {
+  /* min-width: 45%; */
+  /* margin: 20px; */
   /* height: 60vh; */
-  height: 75%;
+  /* height: 75%; */
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -83,10 +104,11 @@ body {
 }
 
 .chat-component {
-  min-width: 45%;
-  margin: 20px;
+  /* min-width: 45%; */
+  /* margin: 20px; */
   /* height: 60vh; */
-  height: 75%;
+  /* height: 75%; */
+  height: 100%;
 }
 .chat-header h4 {
   color: white;

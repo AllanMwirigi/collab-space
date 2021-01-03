@@ -58,7 +58,7 @@ export default class Chat extends React.Component {
       <div className="chat-component">
         <div className='container'>
           <div className='chat-header'>
-            <h4>Chat</h4>
+            <h4>Messages</h4>
           </div>
           <ChatBox
             messages={this.state.messages}
@@ -74,15 +74,3 @@ export default class Chat extends React.Component {
     );
   }
 }
- 
-// const messages = [
-//   {
-//     "text": "Hello there",
-//     "id": "1",
-//     "sender": {
-//       "name": "Ironman",
-//       "uid": "user1",
-//       "avatar": "https://data.cometchat.com/assets/images/avatars/ironman.png",
-//     },
-//   },
-// ]
