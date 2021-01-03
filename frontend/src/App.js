@@ -12,6 +12,9 @@ function App() {
 
   const exitWorkspace = () => {
     // TODO: have a dialog or sth
+    this.roomName = sessionStorage.getItem('roomName');
+    this.displayName = sessionStorage.getItem('displayName');
+    this.socketIo.emit('leave-room', { roomName: this.roomName, userName: this.displayName });
     setVerified(false);
   }
 

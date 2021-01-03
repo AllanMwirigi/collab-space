@@ -24,7 +24,13 @@ export default class Workspace extends React.Component {
     this.socketIo.on('join-room', (otherUserName) => {
       toast.info(`${otherUserName} has joined this workspace`);
     });
-    // TODO: notify of workspace leave
+    this.socketIo.on('leave-room', (otherUserName) => {
+      toast.info(`${otherUserName} has left this workspace`);
+    });
+  }
+  componentWillUnmount() {
+    // leave the room // TODO: observe whether this will suffice or need to detect window/tab closure
+    this.socketIo.emit('leave-room', { roomName: this.roomName, userName: this.displayName });
   }
 
   render() {

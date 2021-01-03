@@ -48,17 +48,15 @@ body {
   font-size: calc(10px + 2vmin);
 
 }
+.info-circle {
+  float: right;
+}
 
 .workspace {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   height: 93vh
-}
-
-.meeting-component {
-  min-width: 45%;
-  color: white;
 }
 
 .tabs {
@@ -112,6 +110,34 @@ body {
 }
 .chat-header h4 {
   color: white;
+}
+
+.meeting-component {
+  min-width: 45%;
+  color: white;
+  height: 85%;
+  padding: 20px;
+  margin-top: 30px;
+}
+.remote-video {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 10px;
+  /* background: burlywood; */
+  background: #B79891;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #94716B, #B79891);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #94716B, #B79891); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+.call-btn {
+  background: teal;
+  color: white;
+  width: fit-content;
+  padding: 10px;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 5px;
 }
 
 

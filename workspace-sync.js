@@ -40,10 +40,17 @@ exports.initSync = (server) => {
         isDrawing: workspaces[roomName].isDrawing
       });
     });
+
+    socket.on('leave-room', ({ roomName, userName }) => {
+      socket.to(roomName).emit('leave-room', userName);
+    });
   
-    socket.on('chat-msg', (data) => {
-      const { roomName, txt, senderName } = data;
+    socket.on('chat-msg', ({ roomName, txt, senderName }) => {
       socket.to(roomName).emit('chat-msg', { txt, senderName });
+    });
+
+    socket.on('peer-join', ({ roomName, userId }) => {
+      socket.to(roomName).emit('peer-join', userId);
     });
 
     // Pointer down event
