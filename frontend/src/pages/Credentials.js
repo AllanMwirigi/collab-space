@@ -35,7 +35,7 @@ export default function Credentials(props) {
             <span className="login100-form-title">
               WorkSpace Details
             </span>
-            <i className="fa fa-info-circle info-circle" aria-hidden="true" data-tip="Members should use the same room name to collaborate in the workspace" data-for="cred-tltp"></i>
+            <i className="fa fa-info-circle info-circle" aria-hidden="true" data-tip="Members should use the same room name in order to collaborate in the workspace" data-for="cred-tltp"></i>
             <div className="wrap-input100 validate-input m-b-16" data-validate="Please enter room name">
               <input className="input100" type="text" name="room-name" placeholder="Room Name" id="room-name"
                 value={roomNameInp} onChange={(e) => { setRoomNameInp(e.currentTarget.value.trim()) } }

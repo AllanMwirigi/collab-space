@@ -51,12 +51,13 @@ export default class Chat extends React.Component {
     list.push(msg);
     this.setState({ messages: list });
     this.socketIo.emit('chat-msg', { roomName: this.roomName, txt, senderName: this.displayName });
+    // TODO: include typing listener and indicator
   }
 
   render() {
     return(
       <div className="chat-component">
-        <div className='container'>
+        <div className='container chat-container'>
           <div className='chat-header'>
             <h4>Messages</h4>
           </div>

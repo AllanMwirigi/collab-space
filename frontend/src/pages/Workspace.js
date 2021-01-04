@@ -25,6 +25,7 @@ export default class Workspace extends React.Component {
       toast.info(`${otherUserName} has joined this workspace`);
     });
     this.socketIo.on('leave-room', (otherUserName) => {
+      this.setState({ connected: false });
       toast.info(`${otherUserName} has left this workspace`);
     });
   }

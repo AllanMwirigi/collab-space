@@ -9,6 +9,19 @@ export const getBaseUrl = () => {
   return url;
 }
 
+export const getPeerConfig = () => {
+  let host, port;
+  if(process.env.REACT_APP_ENV === 'development') {
+    host = process.env.REACT_APP_DEV_PEER_HOST;
+    port = process.env.REACT_APP_DEV_PEER_PORT;
+  }
+  if(process.env.REACT_APP_ENV === 'production') {
+    host = process.env.REACT_APP_PROD_PEER_HOST;
+    port = process.env.REACT_APP_PROD_PEER_PORT;
+  }
+  return { host, port };
+}
+
 export const getHumanReadableTime = (timestamp) => {
   const dateStr = new Date(timestamp).toString(); // "Fri Oct 16 2020 14:31:01 GMT+0300 (East Africa Time)"
   const parts = dateStr.split(' ');

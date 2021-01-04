@@ -1,10 +1,11 @@
-import React,{ useState, } from "react";
+import React,{ useState, useEffect } from "react";
 import { ToastContainer } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import 'react-toastify/dist/ReactToastify.css';
 import Credentials from './pages/Credentials';
 import Workspace from './pages/Workspace';
 import './App.css';
+import { getsocketIoInstance } from "./utils/socketio-client";
 
 function App() {
 
@@ -12,9 +13,10 @@ function App() {
 
   const exitWorkspace = () => {
     // TODO: have a dialog or sth
-    this.roomName = sessionStorage.getItem('roomName');
-    this.displayName = sessionStorage.getItem('displayName');
-    this.socketIo.emit('leave-room', { roomName: this.roomName, userName: this.displayName });
+    const roomName = sessionStorage.getItem('roomName');
+    const displayName = sessionStorage.getItem('displayName');
+    const socketIo = getsocketIoInstance(roomName, displayName, 'App');
+    socketIo.emit('leave-room', { roomName, userName: displayName });
     setVerified(false);
   }
 

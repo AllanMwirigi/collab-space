@@ -106,20 +106,31 @@ body {
   /* margin: 20px; */
   /* height: 60vh; */
   /* height: 75%; */
-  height: 100%;
+  height: 75%;
+  display: flex;
 }
 .chat-header h4 {
   color: white;
 }
+.chat-box {
+  margin-bottom: 90px;
+}
+/* .chat-component div {
+  height: auto
+} */
 
 .meeting-component {
-  min-width: 45%;
+  /* min-width: 45%; */
+  width: 45%;
   color: white;
   height: 85%;
-  padding: 20px;
+  /* padding: 20px; */
+  margin: 20px;
   margin-top: 30px;
 }
-.remote-video {
+/* .meeting-container { */
+#video-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -139,6 +150,62 @@ body {
   margin-bottom: auto;
   border-radius: 5px;
 }
+.end-call-btn {
+  position: absolute;
+  bottom: 5px;
+  background: brown;
+  color: white;
+  width: fit-content;
+  padding: 10px;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 5px;
+}
+/* #video-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+} */
+.video-wrapper {
+  height: 20%;
+  width: 20%;
+  margin: 20px;
+}
+.video-elem {
+  height: 100%;
+  width: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+  .meeting-component {
+    min-width: 85%;
+    width: auto;
+  }
+  .tabs {
+    margin-top: 40px;
+    min-width: 85%;
+  }
+  .workspace {
+    /* height: auto; */
+  }
+  .meeting-component, .tabs {
+    height: 50%;
+  }
+  .whiteboard , .chat-container {
+    height: 90%;
+  }
+  .chat-box {
+    margin-bottom: 90px;
+  }
+  .whiteboard-icons {
+    width: 20%;
+    justify-content: space-between;
+  }
+
+}
+
 
 
 /*//////////////////////////////////////////////////////////////////

@@ -44,13 +44,19 @@ exports.initSync = (server) => {
     socket.on('leave-room', ({ roomName, userName }) => {
       socket.to(roomName).emit('leave-room', userName);
     });
+    socket.on('disconnect', ({ roomName, userName }) => {
+      socket.to(roomName).emit('leave-room', userName);
+    });
   
     socket.on('chat-msg', ({ roomName, txt, senderName }) => {
       socket.to(roomName).emit('chat-msg', { txt, senderName });
     });
 
-    socket.on('peer-join', ({ roomName, userId }) => {
-      socket.to(roomName).emit('peer-join', userId);
+    socket.on('peer-join', ({ roomName, peerId }) => {
+      socket.to(roomName).emit('peer-join', peerId);
+    });
+    socket.on('peer-leave', ({ roomName, peerId }) => {
+      socket.to(roomName).emit('peer-leave', peerId);
     });
 
     // Pointer down event
