@@ -1,6 +1,6 @@
 import React,{ useState } from "react";
 import { toast } from 'react-toastify';
-// import '../App.css';
+import ReactTooltip from 'react-tooltip';
 
 export default function Credentials(props) {
 
@@ -33,11 +33,11 @@ export default function Credentials(props) {
         <div className="wrap-login100">
           <form className="login100-form validate-form p-l-55 p-r-55 p-t-178" onSubmit={e => submit(e) }>
             <span className="login100-form-title">
-              Space Details
+              WorkSpace Details
             </span>
-
+            <i className="fa fa-info-circle info-circle" aria-hidden="true" data-tip="Members should use the same room name in order to collaborate in the workspace" data-for="cred-tltp"></i>
             <div className="wrap-input100 validate-input m-b-16" data-validate="Please enter room name">
-              <input className="input100" type="text" name="room-name" placeholder="Room Name" 
+              <input className="input100" type="text" name="room-name" placeholder="Room Name" id="room-name"
                 value={roomNameInp} onChange={(e) => { setRoomNameInp(e.currentTarget.value.trim()) } }
               />
               <span className="focus-input100"></span>
@@ -48,6 +48,8 @@ export default function Credentials(props) {
               />
               <span className="focus-input100"></span>
             </div>
+            <i className="fa fa-info-circle info-circle" aria-hidden="true" data-tip="The display name will identify you to others in the workspace" data-for="cred-tltp"></i>
+            <ReactTooltip id="cred-tltp" place="bottom" type="info" effect="float" />
 
             {/* <div className="wrap-input100 validate-input" data-validate = "Please enter password">
               <input className="input100" type="password" name="pass" placeholder="Password"

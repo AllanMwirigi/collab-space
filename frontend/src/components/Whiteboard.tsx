@@ -1,10 +1,7 @@
 import { produce } from "immer";
 import React from "react";
 import { Canvas, CanvasPath, Point } from "react-sketch-canvas";
-// import { CanvasPath, Point } from "react-sketch-canvas";
-// import { Canvas } from './Canvas';
 import ReactTooltip from "react-tooltip";
-import { fromJS } from 'immutable';
 import { getsocketIoInstance } from '../utils/socketio-client';
 
 /* Default settings */
@@ -108,15 +105,18 @@ export class Whiteboard extends React.Component<
         isDrawing
       });
     });
-  }
 
-  // updatePaths = (changes: { currentPaths: CanvasPath[]; isDrawing: boolean; }) => {
-  //   const { currentPaths, isDrawing } = changes;
-  //   this.setState({
-  //     paths: fromJS(currentPaths),
-  //     isDrawing
-  //   });
-  // };
+    // this.socketIo.on('sketch-undo', () => {
+    //   this.undo();
+    // });
+    // this.socketIo.on('sketch-redo', () => {
+    //   this.redo();
+    // });
+    // this.socketIo.on('sketch-clear', () => {
+    //   // this.clearCanvas();
+    //   this.resetCanvas();
+    // });
+  }
 
   resetCanvas(): void {
     this.setState(this.initialState);
@@ -132,86 +132,14 @@ export class Whiteboard extends React.Component<
   /* Mouse Handlers - Mouse down, move and up */
 
   handlePointerDown(point: Point): void {
-    // const {
-    //   strokeColor,
-    //   strokeWidth,
-    //   canvasColor,
-    //   eraserWidth,
-    //   withTimestamp,
-    // } = this.props;
-
-    // this.setState(
-    //   produce((draft: ReactSketchCanvasStates) => {
-    //     draft.isDrawing = true;
-    //     draft.undoStack = [];
-
-    //     let stroke: CanvasPath = {
-    //       drawMode: draft.drawMode,
-    //       strokeColor: draft.drawMode ? strokeColor : canvasColor,
-    //       strokeWidth: draft.drawMode ? strokeWidth : eraserWidth,
-    //       paths: [point],
-    //     };
-
-    //     if (withTimestamp) {
-    //       stroke = {
-    //         ...stroke,
-    //         startTimestamp: Date.now(),
-    //         endTimestamp: 0,
-    //       };
-    //     }
-
-    //     draft.currentPaths.push(stroke);
-    //   }),
-    //   this.liftPathsUp
-    // );
-    this.socketIo.emit("sketchPointerDown", { roomName: this.roomName, point });
+    this.socketIo.emit("sketchPointerDown", { roomName: this.roomName, point, toDraw: !this.state.eraseMode });
   }
 
   handlePointerMove(point: Point): void {
-    // const { isDrawing } = this.state;
-
-    // if (!isDrawing) return;
-
-    // this.setState(
-    //   produce((draft: ReactSketchCanvasStates) => {
-    //     const currentStroke = draft.currentPaths[draft.currentPaths.length - 1];
-    //     currentStroke.paths.push(point);
-    //   }),
-    //   this.liftPathsUp
-    // );
-    this.socketIo.emit("sketchPointerMove", { roomName: this.roomName, point });
+    this.socketIo.emit("sketchPointerMove", { roomName: this.roomName, point, toDraw: !this.state.eraseMode });
   }
 
   handlePointerUp(): void {
-    // const { withTimestamp } = this.props;
-
-    // const { isDrawing } = this.state;
-
-    // if (!isDrawing) {
-    //   return;
-    // }
-
-    // this.setState(
-    //   produce((draft: ReactSketchCanvasStates) => {
-    //     draft.isDrawing = false;
-
-    //     if (!withTimestamp) {
-    //       return;
-    //     }
-
-    //     let currentStroke: CanvasPath | undefined = draft.currentPaths.pop();
-
-    //     if (currentStroke) {
-    //       currentStroke = {
-    //         ...currentStroke,
-    //         endTimestamp: Date.now(),
-    //       };
-
-    //       draft.currentPaths.push(currentStroke);
-    //     }
-    //   }),
-    //   this.liftPathsUp
-    // );
     this.socketIo.emit("sketchPointerUp", { roomName: this.roomName });
   }
 
@@ -240,7 +168,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
-    // this.socketIo.emit("sketch-clear", { roomName: this.roomName });
+    this.socketIo.emit("sketch-clear", { roomName: this.roomName });
   }
 
   undo(): void {
@@ -260,7 +188,7 @@ export class Whiteboard extends React.Component<
           onUpdate(currentPaths);
         }
       );
-      // this.socketIo.emit("sketch-undo", { roomName: this.roomName });
+      this.socketIo.emit("sketch-undo", { roomName: this.roomName });
       return;
     }
 
@@ -274,7 +202,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
-    // this.socketIo.emit("sketch-undo", { roomName: this.roomName });
+    this.socketIo.emit("sketch-undo", { roomName: this.roomName });
   }
 
   redo(): void {
@@ -293,7 +221,7 @@ export class Whiteboard extends React.Component<
       }),
       this.liftPathsUp
     );
-    // this.socketIo.emit("sketch-redo", { roomName: this.roomName });
+    this.socketIo.emit("sketch-redo", { roomName: this.roomName });
   }
 
   /* Finally!!! Render method */
@@ -313,11 +241,11 @@ export class Whiteboard extends React.Component<
 
     return (
       <div className="whiteboard">
-        <h4>Whiteboard</h4>
+        <h4>Doodle</h4>
         <ReactTooltip id="whtbrd-tltp" place="top" type="info" effect="float" />
         <div className="whiteboard-icons">
-          <i className="fas fa-undo" data-tip='Undo' onClick={this.undo} data-for="whtbrd-tltp"></i>
-          <i className="fas fa-redo" data-tip='Redo' onClick={this.redo} data-for="whtbrd-tltp"></i>
+          {/* <i className="fas fa-undo" data-tip='Undo' onClick={this.undo} data-for="whtbrd-tltp"></i>
+          <i className="fas fa-redo" data-tip='Redo' onClick={this.redo} data-for="whtbrd-tltp"></i> */}
           <i className="fas fa-eraser" data-tip={this.state.eraseMode ? 'Stop Erase' : 'Erase'}
             onClick={this.toggleEraseMode} data-for="whtbrd-tltp"></i>
           <i className="fas fa-broom" data-tip='Clear' onClick={this.clearCanvas} data-for="whtbrd-tltp"></i>

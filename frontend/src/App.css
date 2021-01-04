@@ -48,6 +48,9 @@ body {
   font-size: calc(10px + 2vmin);
 
 }
+.info-circle {
+  float: right;
+}
 
 .workspace {
   display: flex;
@@ -56,11 +59,27 @@ body {
   height: 93vh
 }
 
-.whiteboard {
+.tabs {
   min-width: 45%;
   margin: 20px;
+  height: 85%;
+}
+.tabs .react-tabs__tab {
+  color: white;
+}
+.tabs .react-tabs__tab--selected {
+  color: black;
+}
+.tabs .react-tabs__tab-panel {
+  height: 100%;
+}
+
+.whiteboard {
+  /* min-width: 45%; */
+  /* margin: 20px; */
   /* height: 60vh; */
-  height: 75%;
+  /* height: 75%; */
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -68,7 +87,7 @@ body {
 }
 
 .whiteboard-icons {
-  width: 20%;
+  width: 10%;
   height: 5%;
   display: flex;
   flex-direction: row;
@@ -83,14 +102,110 @@ body {
 }
 
 .chat-component {
-  min-width: 45%;
-  margin: 20px;
+  /* min-width: 45%; */
+  /* margin: 20px; */
   /* height: 60vh; */
+  /* height: 75%; */
   height: 75%;
+  display: flex;
 }
 .chat-header h4 {
   color: white;
 }
+.chat-box {
+  margin-bottom: 90px;
+}
+/* .chat-component div {
+  height: auto
+} */
+
+.meeting-component {
+  /* min-width: 45%; */
+  width: 45%;
+  color: white;
+  height: 85%;
+  /* padding: 20px; */
+  margin: 20px;
+  margin-top: 30px;
+}
+/* .meeting-container { */
+#video-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 10px;
+  /* background: burlywood; */
+  background: #B79891;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #94716B, #B79891);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #94716B, #B79891); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+.call-btn {
+  background: teal;
+  color: white;
+  width: fit-content;
+  padding: 10px;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 5px;
+}
+.end-call-btn {
+  position: absolute;
+  bottom: 5px;
+  background: brown;
+  color: white;
+  width: fit-content;
+  padding: 10px;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 5px;
+}
+/* #video-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+} */
+.video-wrapper {
+  height: 20%;
+  width: 20%;
+  margin: 20px;
+}
+.video-elem {
+  height: 100%;
+  width: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+  .meeting-component {
+    min-width: 85%;
+    width: auto;
+  }
+  .tabs {
+    margin-top: 40px;
+    min-width: 85%;
+  }
+  .workspace {
+    /* height: auto; */
+  }
+  .meeting-component, .tabs {
+    height: 50%;
+  }
+  .whiteboard , .chat-container {
+    height: 90%;
+  }
+  .chat-box {
+    margin-bottom: 90px;
+  }
+  .whiteboard-icons {
+    width: 20%;
+    justify-content: space-between;
+  }
+
+}
+
 
 
 /*//////////////////////////////////////////////////////////////////

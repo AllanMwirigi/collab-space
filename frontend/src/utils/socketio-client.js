@@ -4,7 +4,7 @@ import { getBaseUrl } from './utils';
 const backendUrl = getBaseUrl();
 let socketIoInstance;
 
-export const getsocketIoInstance = (roomName, userName, componentName) => {
+export const getsocketIoInstance = (roomName, userName, componentName='') => {
   if (socketIoInstance == null) {
     socketIoInstance = socketIOClient(backendUrl);
     socketIoInstance.emit('join-room', { roomName, userName });
