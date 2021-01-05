@@ -39,7 +39,7 @@ const peerServer = ExpressPeerServer(server, {
 app.use(peerServer);
 
 peerServer.on('connection', (client) => { logger.debug(`peer connected ${client.getId()}`) });
-peerServer.on('disconnect', (client) => { logger.debug(`peer connected ${client.getId()}`) });
+peerServer.on('disconnect', (client) => { logger.debug(`peer disconnected ${client.getId()}`) });
 
 
 const PORT = process.env.PORT || 4000; 
