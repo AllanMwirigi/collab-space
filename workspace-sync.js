@@ -3,6 +3,7 @@
 const logger = require('./utils/winston');
 
 const workspaces = {};
+const workspacePeers = {};
 
 exports.initSync = (server) => {
   const socketio = require('socket.io')(server, {
@@ -42,6 +43,7 @@ exports.initSync = (server) => {
     });
 
     socket.on('leave-room', ({ roomName, userName }) => {
+      // TODO: send localPeerId as well and remove it from workspacePeers
       socket.to(roomName).emit('leave-room', userName);
     });
     socket.on('disconnect', ({ roomName, userName }) => {
@@ -53,10 +55,19 @@ exports.initSync = (server) => {
     });
 
     socket.on('peer-join', ({ roomName, peerId }) => {
-      socket.to(roomName).emit('peer-join', peerId);
+      if (workspacePeers[roomName] == null) {
+        workspacePeers[roomName] = {};
+      } else {
+        workspacePeers[roomName][peerId] = peerId;
+      }
+      socket.to(roomName).emit('peer-join', workspacePeers);
+      // socket.to(roomName).emit('peer-join', peerId);
     });
     socket.on('peer-leave', ({ roomName, peerId }) => {
-      socket.to(roomName).emit('peer-leave', peerId);
+      if (workspacePeers[roomName][peerId] != null) {
+        delete workspacePeers[roomName][peerId];
+      }
+      // socket.to(roomName).emit('peer-leave', peerId);
     });
 
     // Pointer down event

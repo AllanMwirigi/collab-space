@@ -18,10 +18,10 @@ export default class Meeting extends React.Component {
       z-index: 1000;
     `;
     this.state = {
-      loading: false, joined: false
+      loading: false, joined: false, videoDataArr: []
     }
     this.peerId = null; this.localPeer = null; this.remotePeers = []; this.videoData = {}; this.quality = 12;
-    this.videoElemRefs = {};
+    this.videoElemRefs = {}; this.peers = {};
     this.videoContainerRef = React.createRef();
     this.roomName = sessionStorage.getItem('roomName');
     this.displayName = sessionStorage.getItem('displayName'); // the name of this user
@@ -29,9 +29,16 @@ export default class Meeting extends React.Component {
   }
 
   componentDidMount() {
-    this.socketIo.on('peer-join', (userId) => {
-      // another user/peer has joined the call
-    });
+    // this.socketIo.on('peer-join', (userId) => {
+    //   // another user/peer has joined the call
+    // });
+  }
+
+  componentDidUpdate() {
+    for (let item of this.state.videoDataArr) {
+      this.videoElemRefs[item.id].srcObject = item.stream;
+      console.log('componentDidUpdate', item.id);
+    }
   }
 
   initConnection = async () => {
@@ -42,11 +49,11 @@ export default class Meeting extends React.Component {
       console.log('local peer connected', id);
       this.localPeerId = id;
       this.initLocalStream(id);
-      this.socketIo.emit('peer-join', { roomName: this.roomName, peerId: id });
+      // this.socketIo.emit('peer-join', { roomName: this.roomName, peerId: id });
     });
     this.localPeer.on('error', (err) => {
       console.log('local peer connection error', err.message);
-      this.localPeer.reconnect();
+      if (this.localPeer) this.localPeer.reconnect();
       toast.error('Error initiating meeting', { autoClose: 10000 });
     })
   }
@@ -69,15 +76,37 @@ export default class Meeting extends React.Component {
       if (stream) {
         this.createVideo({ id: localId, stream });
         this.listenForPeers(stream);
-        this.socketIo.on('peer-join', (otherPeerId) => {
-          console.log('New User Connected', otherPeerId);
+        this.socketIo.emit('peer-join', { roomName: this.roomName, peerId: localId });
+        // this.socketIo.on('peer-join', (otherPeerId) => {
+        //   console.log('socket New peer joined', otherPeerId);
+        //   this.connectToNewUser(otherPeerId, stream);
+        // });
+        this.socketIo.on('peer-join', (workspacePeers) => {
+          console.log('socket New peer joined', workspacePeers);
           this.connectToNewUser(otherPeerId, stream);
         });
       }
+    })
+    .catch(error => {
+      console.log('init stream error', error.message);
+      toast.error('Error initiating meeting', { autoClose: 10000 });
     });
   }
 
   createVideo = (data) => {
+    // only add peers that do not exist into videoDataArr
+    if (this.peers[data.id] == null) {
+      this.setState(prevState => ({
+        videoDataArr: [...prevState.videoDataArr, data] // add new data to state array
+      }))
+      this.peers[data.id] = data.id;
+    }
+    
+    if (this.localPeerId === data.id) {
+      this.setState({ loading: false, joined: true }); // hide loader, show end call btn
+    }
+    return;
+
     if (this.videoData[data.id] == null) {
       this.videoData[data.id] = { ...data,  };
       const videoElem = React.createElement('video', { 
@@ -90,7 +119,7 @@ export default class Meeting extends React.Component {
       this.videoElemRefs[data.id].srcObject = this.videoData[data.id].stream;
       if (this.localPeerId === data.id) {
         this.setState({ loading: false, joined: true }); // hide loader, show end call btn
-        // videoElem.muted = true; // TODO: should be muted by default
+        this.videoElemRefs[data.id].muted = true; // prevent user from hearing themselves i.e. audio being played back to them
       }
     } else {
       const elemRef = this.videoElemRefs[data.id];
@@ -105,15 +134,15 @@ export default class Meeting extends React.Component {
     this.localPeer.on('call', (call) => {
       call.answer(localStream);
       call.on('stream', (userVideoStream) => {
-        console.log('user stream data', userVideoStream)
+        console.log('new call from', call.metadata.id)
         this.createVideo({ id: call.metadata.id, stream: userVideoStream });
       });
       call.on('close', () => {
         console.log('closing peers listeners', call.metadata.id);
         this.removeVideo(call.metadata.id);
       });
-      call.on('error', () => {
-        console.log('peer error ------');
+      call.on('error', (err) => {
+        console.log('peer error', err.message);
         this.removeVideo(call.metadata.id);
       });
       this.remotePeers[call.metadata.id] = call;
@@ -121,19 +150,22 @@ export default class Meeting extends React.Component {
   }
 
   connectToNewUser(otherPeerId, stream) {
-    const call = this.localPeer.call(otherPeerId, stream, { metadata: { id: this.localPeerId }});
-    call.on('stream', (userVideoStream) => {
-      this.createVideo({ id: otherPeerId, stream: userVideoStream });
-    });
-    call.on('close', () => {
-      console.log('other peer closed', otherPeerId);
-      this.removeVideo(otherPeerId);
-    });
-    call.on('error', () => {
-      console.log('peer error ------')
-      this.removeVideo(otherPeerId);
-    })
-    this.remotePeers[otherPeerId] = call;
+    if (peers[otherPeerId] == null) {
+      const call = this.localPeer.call(otherPeerId, stream, { metadata: { id: this.localPeerId }});
+      call.on('stream', (userVideoStream) => {
+        console.log('other user streaming', otherPeerId);
+        this.createVideo({ id: otherPeerId, stream: userVideoStream });
+      });
+      call.on('close', () => {
+        console.log('other peer closed', otherPeerId);
+        this.removeVideo(otherPeerId);
+      });
+      call.on('error', (err) => {
+        console.log('peer error', err.message)
+        this.removeVideo(otherPeerId);
+      })
+      this.remotePeers[otherPeerId] = call;
+    }
   }
   removeVideo = (id) => {
     delete this.videoData[id];
@@ -145,24 +177,47 @@ export default class Meeting extends React.Component {
   }
   destoryConnection = () => {
     const data = this.videoData[this.localPeerId];
-    if (data != null && data.stream.getTracks() != null) {
+    if (data != null && data.stream != null && data.stream.getTracks() != null) {
       data.stream.getTracks().forEach((track) => {
         track.stop();
       })
     }
     
     this.socketIo.emit('peer-leave', { roomName: this.roomName, peerId: this.localPeerId });
-    this.localPeer.destroy();
-    this.removeVideo(this.localPeerId);
+    // this.localPeer.disconnect();
+    // this.localPeer.destroy();
+    // this.localPeer = null;
   }
 
   leaveCall = () => {
     this.destoryConnection();
-    this.setState({ joined: false });
+    // this.removeVideo(this.localPeerId);
+    // this.videoData = {};
+    // // loop through the remaining video refs and remove them
+    // Object.keys(this.videoElemRefs).forEach(id => {
+    //   const elemRef = this.videoElemRefs[id];
+    //   if (elemRef != null) {
+    //     elemRef.remove();
+    //   }
+    // });
+    this.videoElemRefs = {}; this.peers = {};
+    this.setState({ videoDataArr: [], joined: false });
   }
 
   render() {
-    const { loading, joined } = this.state;
+    const { loading, joined, videoDataArr } = this.state;
+    const videoElems = videoDataArr.map((data) => {
+      const elem = (
+        <div className="video-wrapper" key={data.id}>
+          <video className="video-elem" id={data.id} autoPlay muted={data.id === this.localPeerId}
+            ref={ref => this.videoElemRefs[data.id] = ref}>
+          </video>
+        </div>
+      );
+      // this.videoElemRefs[data.id].srcObject = data.stream;
+      return elem;
+    });
+    
     return(
       <div className="meeting-component">
         <h4>Meeting</h4>
@@ -171,7 +226,9 @@ export default class Meeting extends React.Component {
           { !loading && !joined && <button className="call-btn" onClick={this.initConnection}>Start Call</button> }
           { loading && !joined && <BounceLoader loading={loading} color="#36d7b7" css={this.spinnerStyles} size={100} /> }
           {/* { joined &&  <div id="video-container" ref={this.videoContainerRef}></div> } */}
-          <div id="video-container" ref={this.videoContainerRef}></div>
+          <div id="video-container" ref={this.videoContainerRef}>
+            { videoElems }
+          </div>
           { joined && <button className="end-call-btn" onClick={this.leaveCall}>End Call</button> }
         </div>
       </div>

@@ -1,10 +1,10 @@
 export const getBaseUrl = () => {
   let url;
   if(process.env.REACT_APP_ENV === 'development') {
-      url = process.env.REACT_APP_DEV_API_URL;
+    url = process.env.REACT_APP_DEV_API_URL;
   }
   if(process.env.REACT_APP_ENV === 'production') {
-      url = process.env.REACT_APP_PROD_API_URL;
+    url = process.env.REACT_APP_PROD_API_URL;
   }
   return url;
 }
@@ -20,6 +20,14 @@ export const getPeerConfig = () => {
     port = process.env.REACT_APP_PROD_PEER_PORT;
   }
   return { host, port };
+}
+
+export class MyConsole {
+  log = (val1, val2, val3) => {
+    if(process.env.REACT_APP_ENV === 'development') {
+      console.log(val1, val2, val3);
+    }
+  }
 }
 
 export const getHumanReadableTime = (timestamp) => {
