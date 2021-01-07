@@ -35,7 +35,7 @@ function App() {
       </header>
       { !verified && <Credentials setVerified={setVerified}/> }
       { verified &&  <Workspace/> }
-      <ToastContainer />
+      <ToastContainer limit={3}/>
     </div>
   );
 }

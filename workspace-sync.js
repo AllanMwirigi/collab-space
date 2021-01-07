@@ -42,6 +42,12 @@ exports.initSync = (server) => {
       });
     });
 
+    // if server restarts, it seems room info is lost, 
+    // need to rejoin but don't want to emit to the other sockets in room
+    socket.on('join-room-re', ({ roomName }) => {
+      socket.join(roomName); // will be ignored if socket already in room
+    });
+
     socket.on('leave-room', ({ roomName, userName }) => {
       // TODO: send localPeerId as well and remove it from workspacePeers
       socket.to(roomName).emit('leave-room', userName);
@@ -57,22 +63,24 @@ exports.initSync = (server) => {
     socket.on('peer-join', ({ roomName, peerId }) => {
       if (workspacePeers[roomName] == null) {
         workspacePeers[roomName] = {};
+        workspacePeers[roomName][peerId] = peerId;
       } else {
         workspacePeers[roomName][peerId] = peerId;
       }
-      socket.to(roomName).emit('peer-join', workspacePeers);
+      socketio.to(roomName).emit('peer-join', workspacePeers[roomName]);
+      // socketio.to(roomName).emit('peer-join', workspacePeers[roomName]);
       // socket.to(roomName).emit('peer-join', peerId);
     });
     socket.on('peer-leave', ({ roomName, peerId }) => {
-      if (workspacePeers[roomName][peerId] != null) {
+      if (workspacePeers[roomName] != null && workspacePeers[roomName][peerId] != null) {
         delete workspacePeers[roomName][peerId];
       }
-      // socket.to(roomName).emit('peer-leave', peerId);
+      // socket.to(roomName).emit('peer-leave', workspacePeers[roomName]);
+      socket.to(roomName).emit('peer-leave', peerId);
     });
 
     // Pointer down event
     socket.on("sketchPointerDown", function ({ roomName, point, toDraw }) {
-      // logger.debug(`pointerDown ${JSON.stringify(point)}`)
       if (workspaces[roomName] == null) {
         workspaces[roomName] = {
           drawMode: toDraw,
@@ -103,7 +111,6 @@ exports.initSync = (server) => {
 
     // Pointer move event
     socket.on("sketchPointerMove", function ({ roomName, point, toDraw }) {
-      // logger.debug(`pointerMove ${JSON.stringify(point)}`)
       if (workspaces[roomName] == null) {
         workspaces[roomName] = {
           drawMode: toDraw,
