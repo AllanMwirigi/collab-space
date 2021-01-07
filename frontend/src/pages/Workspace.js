@@ -22,7 +22,7 @@ export default class Workspace extends React.Component {
 
   componentDidMount() {
     this.socketIo.on('join-room', (otherUserName) => {
-      toast.info(`${otherUserName} has joined this workspace`);
+      toast.info(`${otherUserName} has joined this workspace`, { autoClose: false });
     });
     this.socketIo.on('leave-room', (otherUserName) => {
       this.setState({ connected: false });
@@ -37,7 +37,7 @@ export default class Workspace extends React.Component {
   render() {
     return (
       <div className="workspace">
-        <Meeting/>
+        {/* <Meeting/>
         <Tabs className="tabs">
           <TabList>
             <Tab>Whiteboard</Tab>
@@ -50,9 +50,9 @@ export default class Workspace extends React.Component {
           <TabPanel>
             <Chat />
           </TabPanel>
-        </Tabs>
-        {/* <Whiteboard />
-        <Chat /> */}
+        </Tabs> */}
+        <Whiteboard />
+        <Chat />
       </div>
     );
   }

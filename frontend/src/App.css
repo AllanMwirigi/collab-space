@@ -43,10 +43,25 @@ body {
   margin-left: auto;
   margin-right: 20px; */
 }
-.exit-room-icon {
+.room-icon {
   margin-left: 10px;
   font-size: calc(10px + 2vmin);
-
+}
+.members-modal-content {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 70px;
+  right: 1%;
+  padding: 15px;
+  background: seagreen;
+  border-radius: 5px;
+  /* font-size: small; */
+  color: white;
+  z-index: 100000;
+}
+.mbrs-mdl-close {
+  margin-left: auto;
 }
 .info-circle {
   float: right;
@@ -75,11 +90,10 @@ body {
 }
 
 .whiteboard {
-  /* min-width: 45%; */
-  /* margin: 20px; */
+  min-width: 45%;
+  margin: 20px;
   /* height: 60vh; */
-  /* height: 75%; */
-  height: 100%;
+  height: 85%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -102,10 +116,9 @@ body {
 }
 
 .chat-component {
-  /* min-width: 45%; */
-  /* margin: 20px; */
+  min-width: 45%;
+  margin: 20px;
   /* height: 60vh; */
-  /* height: 75%; */
   height: 75%;
   display: flex;
 }
@@ -196,6 +209,17 @@ body {
 }
 
 @media only screen and (max-width: 600px) {
+  .wrap-login100 {
+    width: 100%;
+  }
+  .wrap-input100 {
+    width: 90%;
+  }
+  .container-login100-form-btn {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .meeting-component {
     min-width: 85%;
     width: auto;
@@ -212,6 +236,9 @@ body {
   }
   .whiteboard , .chat-container {
     height: 90%;
+  }
+  .whiteboard, .chat-component {
+    width: 100%;
   }
   .chat-box {
     margin-bottom: 90px;
@@ -246,7 +273,7 @@ body {
   align-items: center;
   padding: 15px;
   position: relative;
-  margin-top: 5%;
+  margin-top: 1%;
 }
 
 .wrap-login100 {
@@ -297,6 +324,8 @@ body {
   border-radius: 27px;
   position: relative;
   z-index: 1;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .input100 {
@@ -312,6 +341,25 @@ body {
   background: #ebebeb;
   border-radius: 27px;
   padding: 0 35px 0 35px;
+}
+
+.create-workspace {
+  display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-direction: column;
+	-moz-flex-direction: column;
+	-ms-flex-direction: column;
+	-o-flex-direction: column;
+	flex-direction: column;
+	-ms-align-items: center;
+  align-items: center;
+}
+.create-txt {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 
@@ -358,6 +406,8 @@ body {
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .login100-form-btn {
@@ -390,11 +440,31 @@ body {
   background-color: #1b3815;
 }
 
+.txt1 {
+  font-size: 15px;
+  color: #999999;
+  line-height: 1.4;
+}
 .txt3 {
   font-weight: bold;
   font-size: 15px;
   color: #57b846;
   line-height: 1.4;
+}
+
+.flex-col-c {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-direction: column;
+	-moz-flex-direction: column;
+	-ms-flex-direction: column;
+	-o-flex-direction: column;
+	flex-direction: column;
+	-ms-align-items: center;
+	align-items: center;
 }
 
 
@@ -519,5 +589,59 @@ iframe {
 .p-l-55 {padding-left: 55px;}
 .p-r-55 {padding-right: 55px;}
 .p-t-178 {padding-top: 178px;}
+.p-b-40 {padding-bottom: 40px;}
+.p-t-10 {padding-top: 10px;}
+.p-b-9 {padding-bottom: 9px;}
 .m-b-16 {margin-bottom: 16px;}
+
+/* Mobile */
+@media only screen and (max-width: 600px) {
+  .limiter {
+    margin-top: 10%;
+    margin-bottom: 40px;
+  }
+  .wrap-login100 {
+    width: 100%;
+  }
+  .wrap-input100 {
+    width: 90%;
+  }
+  .login100-form {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+  .container-login100-form-btn {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .meeting-component {
+    min-width: 85%;
+    width: auto;
+  }
+  .tabs {
+    margin-top: 40px;
+    min-width: 85%;
+  }
+  .workspace {
+    /* height: auto; */
+  }
+  .meeting-component, .tabs {
+    height: 50%;
+  }
+  .whiteboard , .chat-container {
+    height: 90%;
+  }
+  .whiteboard, .chat-component {
+    width: 100%;
+  }
+  .chat-box {
+    margin-bottom: 90px;
+  }
+  .whiteboard-icons {
+    width: 20%;
+    justify-content: space-between;
+  }
+
+}
 
