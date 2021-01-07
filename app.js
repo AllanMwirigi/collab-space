@@ -29,17 +29,17 @@ const { initSync } = require('./workspace-sync');
 //   res.status(200).json({ peerId: v4() });
 // });
 
-initSync(server);
+initSync(server, app);
 
 const peerServer = ExpressPeerServer(server, {
   // debug: true,
   path: '/peertc'
 });
-// app.use('/peertc', peerServer);
-app.use(peerServer);
 
-peerServer.on('connection', (client) => { logger.debug(`peer connected ${client.getId()}`) });
-peerServer.on('disconnect', (client) => { logger.debug(`peer disconnected ${client.getId()}`) });
+// app.use(peerServer);
+
+// peerServer.on('connection', (client) => { logger.debug(`peer connected ${client.getId()}`) });
+// peerServer.on('disconnect', (client) => { logger.debug(`peer disconnected ${client.getId()}`) });
 
 
 const PORT = process.env.PORT || 4000; 

@@ -59,7 +59,8 @@ export default class Chat extends React.Component {
       <div className="chat-component">
         <div className='container chat-container'>
           <div className='chat-header'>
-            <h4>Messages</h4>
+            <h4>Chat</h4>
+            {/* <h4>Messages</h4> */}
           </div>
           <ChatBox
             messages={this.state.messages}

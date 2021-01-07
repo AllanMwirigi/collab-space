@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import BounceLoader from 'react-spinners/BounceLoader';
 import { css } from "@emotion/core";
 import Peer from 'peerjs';
@@ -18,14 +17,16 @@ export default class Meeting extends React.Component {
       z-index: 1000;
     `;
     this.state = {
-      loading: false, joined: false, videoDataArr: []
+      loading: false, joined: false, 
+      videoDataArr: [] // [{ id, stream }]
     }
     this.peerId = null; this.localPeer = null; this.remotePeers = []; this.videoData = {}; this.quality = 12;
     this.videoElemRefs = {}; this.peers = {};
     this.videoContainerRef = React.createRef();
     this.roomName = sessionStorage.getItem('roomName');
     this.displayName = sessionStorage.getItem('displayName'); // the name of this user
-    this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Meeting');
+
+    // TODO: if server restarts while clients connected, clients will need to rejoin the room
   }
 
   componentDidMount() {
@@ -36,9 +37,18 @@ export default class Meeting extends React.Component {
 
   componentDidUpdate() {
     for (let item of this.state.videoDataArr) {
-      this.videoElemRefs[item.id].srcObject = item.stream;
-      console.log('componentDidUpdate', item.id);
+      if (this.videoElemRefs[item.id].srcObject == null) {
+        this.videoElemRefs[item.id].srcObject = item.stream;
+      }
+      // this.videoElemRefs[item.id].srcObject = item.stream;
+      // console.log('componentDidUpdate', item.id);
     }
+  }
+
+  componentWillUnmount() {
+    // this.leaveCall();
+    this.destoryConnection();
+    if (this.localPeer != null) this.localPeer.destroy();
   }
 
   initConnection = async () => {
@@ -53,8 +63,15 @@ export default class Meeting extends React.Component {
     });
     this.localPeer.on('error', (err) => {
       console.log('local peer connection error', err.message);
-      if (this.localPeer) this.localPeer.reconnect();
-      toast.error('Error initiating meeting', { autoClose: 10000 });
+      
+      // toast.error('Error initiating meeting', { autoClose: 10000 });
+    })
+    this.localPeer.on('disconnected', () => {
+      // try {
+      //   if (this.localPeer && this.localPeer.disconnected) this.localPeer.reconnect();
+      // } catch (error) {
+      //   toast.error('Error reconnecting to meeting', { autoClose: 10000 });
+      // }
     })
   }
 
@@ -76,15 +93,24 @@ export default class Meeting extends React.Component {
       if (stream) {
         this.createVideo({ id: localId, stream });
         this.listenForPeers(stream);
-        this.socketIo.emit('peer-join', { roomName: this.roomName, peerId: localId });
-        // this.socketIo.on('peer-join', (otherPeerId) => {
-        //   console.log('socket New peer joined', otherPeerId);
-        //   this.connectToNewUser(otherPeerId, stream);
-        // });
-        this.socketIo.on('peer-join', (workspacePeers) => {
-          console.log('socket New peer joined', workspacePeers);
-          this.connectToNewUser(otherPeerId, stream);
+
+        this.socketIo = getsocketIoInstance(this.roomName, this.displayName, 'Meeting');
+        // rejoin room in case client is disconnected midway, will be ignored if client already in room
+        this.socketIo.emit('join-room-re', { roomName: this.roomName });
+        this.socketIo.on('peer-join', (peers) => {
+          // any time a peer is added, send back an object containing all the peers
+          console.log('socket New peer joined', peers);
+          Object.keys(peers).forEach((key) => {
+            const peerId = peers[key];
+            this.connectToNewUser(peerId, stream);
+          });
         });
+        this.socketIo.on('peer-leave', (peerId) => {
+          // any time a peer leaves, send its id
+          console.log('socket peer left', peerId);
+          this.removeVideo(peerId);
+        });
+        this.socketIo.emit('peer-join', { roomName: this.roomName, peerId: localId });
       }
     })
     .catch(error => {
@@ -93,64 +119,12 @@ export default class Meeting extends React.Component {
     });
   }
 
-  createVideo = (data) => {
-    // only add peers that do not exist into videoDataArr
-    if (this.peers[data.id] == null) {
-      this.setState(prevState => ({
-        videoDataArr: [...prevState.videoDataArr, data] // add new data to state array
-      }))
-      this.peers[data.id] = data.id;
-    }
-    
-    if (this.localPeerId === data.id) {
-      this.setState({ loading: false, joined: true }); // hide loader, show end call btn
-    }
-    return;
-
-    if (this.videoData[data.id] == null) {
-      this.videoData[data.id] = { ...data,  };
-      const videoElem = React.createElement('video', { 
-        ref: ref => this.videoElemRefs[data.id] = ref, // ref: this.videoElemRefs[data.id], 
-        className: 'video-elem', id: data.id, autoPlay: true,
-        // srcObject: this.videoData[data.id].stream, // not allowed by React, so used the ref instead
-      });
-      const videoWrapper = React.createElement('div', { className: 'video-wrapper' }, videoElem);
-      ReactDOM.render(videoWrapper, document.getElementById('video-container'));
-      this.videoElemRefs[data.id].srcObject = this.videoData[data.id].stream;
-      if (this.localPeerId === data.id) {
-        this.setState({ loading: false, joined: true }); // hide loader, show end call btn
-        this.videoElemRefs[data.id].muted = true; // prevent user from hearing themselves i.e. audio being played back to them
-      }
-    } else {
-      const elemRef = this.videoElemRefs[data.id];
-      if (elemRef != null) {
-        elemRef.srcObject = data.stream
-      }
-    }
-  }
-
-  listenForPeers = (localStream) => {
-    // listening for any incoming video stream from another user and will stream our data in peer.answer(ourStream).
-    this.localPeer.on('call', (call) => {
-      call.answer(localStream);
-      call.on('stream', (userVideoStream) => {
-        console.log('new call from', call.metadata.id)
-        this.createVideo({ id: call.metadata.id, stream: userVideoStream });
-      });
-      call.on('close', () => {
-        console.log('closing peers listeners', call.metadata.id);
-        this.removeVideo(call.metadata.id);
-      });
-      call.on('error', (err) => {
-        console.log('peer error', err.message);
-        this.removeVideo(call.metadata.id);
-      });
-      this.remotePeers[call.metadata.id] = call;
-    });
-  }
-
   connectToNewUser(otherPeerId, stream) {
-    if (peers[otherPeerId] == null) {
+    try {
+      if (otherPeerId === this.localPeerId) {
+        // don't want local peer to call itself
+        return;
+      }
       const call = this.localPeer.call(otherPeerId, stream, { metadata: { id: this.localPeerId }});
       call.on('stream', (userVideoStream) => {
         console.log('other user streaming', otherPeerId);
@@ -165,28 +139,111 @@ export default class Meeting extends React.Component {
         this.removeVideo(otherPeerId);
       })
       this.remotePeers[otherPeerId] = call;
+    } catch(error) {
+      console.log('error calling', otherPeerId, error.message);
     }
   }
-  removeVideo = (id) => {
-    delete this.videoData[id];
-    const elemRef = this.videoElemRefs[id];
-    if (elemRef != null) {
-      elemRef.remove();
-      delete this.videoElemRefs[id];
-    }
-  }
-  destoryConnection = () => {
-    const data = this.videoData[this.localPeerId];
-    if (data != null && data.stream != null && data.stream.getTracks() != null) {
-      data.stream.getTracks().forEach((track) => {
-        track.stop();
-      })
+
+  createVideo = (data) => {
+    // only add peers that do not exist into videoDataArr
+    if (this.peers[data.id] == null) {
+      this.setState(prevState => ({
+        videoDataArr: [...prevState.videoDataArr, data] // add new data to state array
+      }))
+      this.peers[data.id] = data.id;
     }
     
-    this.socketIo.emit('peer-leave', { roomName: this.roomName, peerId: this.localPeerId });
-    // this.localPeer.disconnect();
-    // this.localPeer.destroy();
-    // this.localPeer = null;
+    if (this.localPeerId === data.id) {
+      this.setState({ loading: false, joined: true }); // hide loader, show end call btn
+    }
+    
+
+    // // can't use this as ReactDOM.render() replaces the contents of the parent instead of appending
+    // if (this.videoData[data.id] == null) {
+    //   this.videoData[data.id] = { ...data,  };
+    //   const videoElem = React.createElement('video', { 
+    //     ref: ref => this.videoElemRefs[data.id] = ref, // ref: this.videoElemRefs[data.id], 
+    //     className: 'video-elem', id: data.id, autoPlay: true,
+    //     // srcObject: this.videoData[data.id].stream, // not allowed by React, so used the ref instead
+    //   });
+    //   const videoWrapper = React.createElement('div', { className: 'video-wrapper' }, videoElem);
+    //   ReactDOM.render(videoWrapper, document.getElementById('video-container'));
+    //   this.videoElemRefs[data.id].srcObject = this.videoData[data.id].stream;
+    //   if (this.localPeerId === data.id) {
+    //     this.setState({ loading: false, joined: true }); // hide loader, show end call btn
+    //     this.videoElemRefs[data.id].muted = true; // prevent user from hearing themselves i.e. audio being played back to them
+    //   }
+    // } else {
+    //   const elemRef = this.videoElemRefs[data.id];
+    //   if (elemRef != null) {
+    //     elemRef.srcObject = data.stream
+    //   }
+    // }
+  }
+
+  removeVideo = (id) => {
+    console.log('removing peer', id);
+    const newVideoDataArr = [];
+    
+    for(let data of this.state.videoDataArr) {
+      if(data.id !== id) {
+        newVideoDataArr.push(data);
+      } else {
+        // stop the media tracks of the peer's stream
+        if (data.stream != null && data.stream.getTracks() != null) {
+          data.stream.getTracks().forEach((track) => {
+            track.stop();
+          })
+        }
+      }
+    }
+    delete this.peers[id];
+    this.setState({ videoDataArr: newVideoDataArr });
+  }
+
+  listenForPeers = (localStream) => {
+    // listening for any incoming video stream from another user and will stream our data in peer.answer(ourStream).
+    this.localPeer.on('call', (call) => {
+      call.answer(localStream);
+      call.on('stream', (userVideoStream) => {
+        console.log('new call from', call.metadata.id)
+        this.createVideo({ id: call.metadata.id, stream: userVideoStream });
+      });
+      call.on('close', () => {
+        console.log('peer closed', call.metadata.id);
+        this.removeVideo(call.metadata.id);
+      });
+      call.on('error', (err) => {
+        console.log('peer error', err.message);
+        // this.removeVideo(call.metadata.id);
+      });
+      this.remotePeers[call.metadata.id] = call;
+    });
+  }
+
+  destoryConnection = () => {
+    for (let data of this.state.videoDataArr) {
+      if (data.stream != null && data.stream.getTracks() != null) {
+        data.stream.getTracks().forEach((track) => {
+          track.stop();
+        })
+      }
+    }
+    // const data = this.videoData[this.localPeerId];
+    
+    Object.keys(this.videoElemRefs).forEach(id => {
+      const elemRef = this.videoElemRefs[id];
+      if(elemRef!= null) elemRef.srcObject = null;
+    });
+    
+    if (this.socketIo) {
+      this.socketIo.emit('peer-leave', { roomName: this.roomName, peerId: this.localPeerId });
+    }
+    // if (this.localPeer != null) {
+    // // this.localPeer.disconnect();
+    //   this.localPeer.destroy();
+    //   // this.localPeer = null;
+    // }
   }
 
   leaveCall = () => {
