@@ -1,0 +1,12 @@
+spec:
+  name: collab-space-backend
+  services:
+  - name: collab-space-backend
+    git:
+      branch: main
+      repo_clone_url: https://github.com/AllanMwirigi/collab-space.git
+    envs:
+    - key: ENVIRONMENT
+      value: "production"
+    - key: FRONTEND_PROD_URL
+      value: "Enter the URL of the Collab Space frontend. For CORS allowed origins"
