@@ -69,25 +69,30 @@ exports.initSync = (server, app) => {
     socket.on('join-room', ({ roomName, userName }) => {
       // each user in a workspace will join a room identified by the room name
       // create a new entry in workspaces if none exists
-      if (workspaces[roomName] == null) {
-        workspaces[roomName] = {
-          drawMode: true,
-          isDrawing: false,
-          // currentPaths: new _immutable.List(),
-          currentPaths: [],
-          canvasColor: "white",
-          strokeColor: "red",
-          strokeWidth: 4,
-          eraserWidth: 20,
+      try {
+        if (workspaces[roomName] == null) {
+          workspaces[roomName] = {
+            drawMode: true,
+            isDrawing: false,
+            // currentPaths: new _immutable.List(),
+            currentPaths: [],
+            canvasColor: "white",
+            strokeColor: "red",
+            strokeWidth: 4,
+            eraserWidth: 20,
+          }
         }
+        socket.join(roomName);
+        logger.debug(`socket ${socket.id} joined room ${roomName}`);
+        socket.to(roomName).emit('join-room', userName);
+        socketio.to(roomName).emit('whiteboard-paths', { 
+          currentPaths: workspaces[roomName].currentPaths,
+          isDrawing: workspaces[roomName].isDrawing
+        });
+      } catch (error) {
+        logger.error(`join-room - ${error.message}`);
       }
-      socket.join(roomName);
-      logger.debug(`socket ${socket.id} joined room ${roomName}`);
-      socket.to(roomName).emit('join-room', userName);
-      socketio.to(roomName).emit('whiteboard-paths', { 
-        currentPaths: workspaces[roomName].currentPaths,
-        isDrawing: workspaces[roomName].isDrawing
-      });
+      
     });
 
     // if server restarts, it seems room info is lost, 
@@ -129,73 +134,88 @@ exports.initSync = (server, app) => {
 
     // Pointer down event
     socket.on("sketchPointerDown", function ({ roomName, point, toDraw }) {
-      if (workspaces[roomName] == null) {
-        workspaces[roomName] = {
-          drawMode: toDraw,
-          isDrawing: false,
-          currentPaths: [],
-          canvasColor: "white",
-          strokeColor: "red",
-          strokeWidth: 4,
-          eraserWidth: 20,
+      try {
+        if (workspaces[roomName] == null) {
+          workspaces[roomName] = {
+            drawMode: toDraw,
+            isDrawing: false,
+            currentPaths: [],
+            canvasColor: "white",
+            strokeColor: "red",
+            strokeWidth: 4,
+            eraserWidth: 20,
+          }
         }
+        workspaces[roomName].isDrawing = true;
+        const { strokeColor, canvasColor, strokeWidth, eraserWidth } = workspaces[roomName];
+        const cp = workspaces[roomName].currentPaths.slice();
+        cp.push({
+          drawMode: toDraw,
+          strokeColor: toDraw ? strokeColor : canvasColor,
+          strokeWidth: toDraw ? strokeWidth : eraserWidth,
+          paths: [point]
+        });
+        workspaces[roomName].currentPaths = cp;
+  
+        socketio.to(roomName).emit('whiteboard-paths', { 
+          currentPaths: workspaces[roomName].currentPaths,
+          isDrawing: workspaces[roomName].isDrawing
+        });
+      } catch (error) {
+        logger.error(`join-room - ${error.message}`);
       }
-      workspaces[roomName].isDrawing = true;
-      const { strokeColor, canvasColor, strokeWidth, eraserWidth } = workspaces[roomName];
-      const cp = workspaces[roomName].currentPaths.slice();
-      cp.push({
-        drawMode: toDraw,
-        strokeColor: toDraw ? strokeColor : canvasColor,
-        strokeWidth: toDraw ? strokeWidth : eraserWidth,
-        paths: [point]
-      });
-      workspaces[roomName].currentPaths = cp;
-
-      socketio.to(roomName).emit('whiteboard-paths', { 
-        currentPaths: workspaces[roomName].currentPaths,
-        isDrawing: workspaces[roomName].isDrawing
-      });
+      
     });
 
     // Pointer move event
     socket.on("sketchPointerMove", function ({ roomName, point, toDraw }) {
-      if (workspaces[roomName] == null) {
-        workspaces[roomName] = {
-          drawMode: toDraw,
-          isDrawing: false,
-          currentPaths: [],
-          canvasColor: "white",
-          strokeColor: "red",
-          strokeWidth: 4,
-          eraserWidth: 20,
+      try {
+        if (workspaces[roomName] == null) {
+          workspaces[roomName] = {
+            drawMode: toDraw,
+            isDrawing: false,
+            currentPaths: [],
+            canvasColor: "white",
+            strokeColor: "red",
+            strokeWidth: 4,
+            eraserWidth: 20,
+          }
         }
+        if (!workspaces[roomName].isDrawing) return;
+  
+        const cp = workspaces[roomName].currentPaths.slice();
+        cp[workspaces[roomName].currentPaths.length - 1].paths.push(point);
+        workspaces[roomName].currentPaths = cp;
+  
+        socketio.to(roomName).emit('whiteboard-paths', { 
+          currentPaths: workspaces[roomName].currentPaths,
+          isDrawing: workspaces[roomName].isDrawing
+        });
+      } catch (error) {
+        logger.error(`join-room - ${error.message}`);
       }
-      if (!workspaces[roomName].isDrawing) return;
-
-      const cp = workspaces[roomName].currentPaths.slice();
-      cp[workspaces[roomName].currentPaths.length - 1].paths.push(point);
-      workspaces[roomName].currentPaths = cp;
-
-      socketio.to(roomName).emit('whiteboard-paths', { 
-        currentPaths: workspaces[roomName].currentPaths,
-        isDrawing: workspaces[roomName].isDrawing
-      });
+      
     });
 
     // Pointer up event
     socket.on("sketchPointerUp", function ({roomName}) {
-      if (workspaces[roomName] == null) {
-        workspaces[roomName] = {
-          drawMode: true,
-          isDrawing: false,
-          currentPaths: [],
-          canvasColor: "white",
-          strokeColor: "red",
-          strokeWidth: 4,
-          eraserWidth: 20,
+      try {
+        if (workspaces[roomName] == null) {
+          workspaces[roomName] = {
+            drawMode: true,
+            isDrawing: false,
+            currentPaths: [],
+            canvasColor: "white",
+            strokeColor: "red",
+            strokeWidth: 4,
+            eraserWidth: 20,
+          }
         }
+        workspaces[roomName].isDrawing = false;
+      } catch (error) {
+        logger.error(`join-room - ${error.message}`);
       }
-      workspaces[roomName].isDrawing = false;
+      
     });
 
     socket.on('sketch-undo', ({ roomName }) => {
@@ -205,23 +225,27 @@ exports.initSync = (server, app) => {
       socket.to(roomName).emit('sketch-redo');
     });
     socket.on('sketch-clear', ({ roomName }) => {
-      // if the workspace data exists, reset it
-      if (workspaces[roomName] != null) {
-        workspaces[roomName] = {
-          drawMode: true,
-          isDrawing: false,
-          currentPaths: [],
-          canvasColor: "white",
-          strokeColor: "red",
-          strokeWidth: 4,
-          eraserWidth: 20,
+      try {
+        // if the workspace data exists, reset it
+        if (workspaces[roomName] != null) {
+          workspaces[roomName] = {
+            drawMode: true,
+            isDrawing: false,
+            currentPaths: [],
+            canvasColor: "white",
+            strokeColor: "red",
+            strokeWidth: 4,
+            eraserWidth: 20,
+          }
         }
+        // socket.to(roomName).emit('sketch-clear');
+        socketio.to(roomName).emit('whiteboard-paths', { 
+          currentPaths: workspaces[roomName].currentPaths,
+          isDrawing: workspaces[roomName].isDrawing
+        });
+      } catch (error) {
+        logger.error(`join-room - ${error.message}`);
       }
-      // socket.to(roomName).emit('sketch-clear');
-      socketio.to(roomName).emit('whiteboard-paths', { 
-        currentPaths: workspaces[roomName].currentPaths,
-        isDrawing: workspaces[roomName].isDrawing
-      });
     });
   
   });

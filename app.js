@@ -5,10 +5,13 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ExpressPeerServer } = require('peer');
-// const { v4 } = require('uuid');
+const path = require('path');
 require('dotenv').config();
 
+
 const app = express();
+const appRoot = path.dirname(require.main.filename); // will fail if using a launcher like pm2
+
 // parse request bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,19 +28,24 @@ const server = http.createServer(app);
 const logger = require('./utils/winston');
 const { initSync } = require('./workspace-sync');
 
-// app.get('/api/v1/peer-join', (req, res, next) => {
-//   res.status(200).json({ peerId: v4() });
-// });
+app.get('/api/v1/cllb-spc/logs', (req, res, next) => {
+  try {
+    res.status(200);
+    res.sendFile(`${appRoot}/logs/app.log`);
+  } catch (error) {
+    // res.sendStatus(500);
+    res.status(500).json({ msg: error.message });
+    logger.error(`get logs - ${error.message}`);
+  }
+});
 
 initSync(server, app);
 
-const peerServer = ExpressPeerServer(server, {
-  // debug: true,
-  path: '/peertc'
-});
-
+// const peerServer = ExpressPeerServer(server, {
+//   // debug: true,
+//   path: '/peertc'
+// });
 // app.use(peerServer);
-
 // peerServer.on('connection', (client) => { logger.debug(`peer connected ${client.getId()}`) });
 // peerServer.on('disconnect', (client) => { logger.debug(`peer disconnected ${client.getId()}`) });
 
