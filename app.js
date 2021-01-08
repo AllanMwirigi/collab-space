@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(compression);
 const corsOptions = {
   // NOTE!!!: in case domain is changed, ensure to update these; local and prod domains
-  origin: ["http://localhost:3000"],
+  origin: ["http://localhost:3000", process.env.FRONTEND_PROD_URL],
   // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 app.use(cors(corsOptions));
