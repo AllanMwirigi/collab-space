@@ -37,10 +37,12 @@ const logger = createLogger({
 });
 
 // If we're not in production then log to the `console`
-if (process.env.ENVIRONMENT !== 'production') {
-  logger.add(consoleTransport);
-} else {
-  logger.add(fileTransport); // otherwise log to file
-}
+// if (process.env.ENVIRONMENT !== 'production') {
+//   logger.add(consoleTransport);
+// } else {
+//   logger.add(fileTransport); // otherwise log to file
+// }
+logger.add(consoleTransport);
+
 
 module.exports = logger;

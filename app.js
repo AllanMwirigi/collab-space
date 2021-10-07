@@ -13,8 +13,8 @@ const app = express();
 const appRoot = path.dirname(require.main.filename); // will fail if using a launcher like pm2
 
 // parse request bodies
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 // gzip compress response body
 // app.use(compression);
 const corsOptions = {
